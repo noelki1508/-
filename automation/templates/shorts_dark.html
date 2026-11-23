@@ -1,0 +1,170 @@
+<title>블랙스톤 숏츠</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#000;
+  display:flex; justify-content:center; align-items:center;
+  min-height:100vh;
+  font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+}
+.phone {
+  width:360px; height:640px; position:relative; overflow:hidden;
+  background:#0D0D0D; border-radius:24px;
+  box-shadow: 0 0 60px rgba(0,0,0,0.8);
+}
+.slide {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+  padding:64px 32px 80px; text-align:center;
+  transform:translateY(100%); opacity:0;
+  transition: transform 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.45s cubic-bezier(0.4,0,0.2,1);
+  will-change: transform, opacity;
+}
+.slide.active { transform:translateY(0); opacity:1; }
+.slide.gone {
+  transform:translateY(-60px) scale(0.96); opacity:0;
+  transition: transform 0.45s cubic-bezier(0.4,0,1,1), opacity 0.35s ease;
+}
+.slide .stag, .slide .accent-line, .slide .mtxt,
+.slide .stxt, .slide .qbox, .slide .cta-btn, .slide .badge {
+  opacity:0; transform:translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.slide.active .badge      { opacity:1; transform:translateY(0); transition-delay:0.15s; }
+.slide.active .stag       { opacity:1; transform:translateY(0); transition-delay:0.22s; }
+.slide.active .accent-line{ opacity:1; transform:translateY(0); transition-delay:0.28s; }
+.slide.active .mtxt       { opacity:1; transform:translateY(0); transition-delay:0.34s; }
+.slide.active .stxt       { opacity:1; transform:translateY(0); transition-delay:0.46s; }
+.slide.active .qbox       { opacity:1; transform:translateY(0); transition-delay:0.46s; }
+.slide.active .cta-btn    { opacity:1; transform:translateY(0); transition-delay:0.50s; }
+
+.badge {
+  font-size:10px; font-weight:700; letter-spacing:0.12em;
+  color:rgba(255,255,255,0.3);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:100px; padding:4px 12px;
+  margin-bottom:20px; text-transform:uppercase;
+}
+.stag {
+  font-size:10px; font-weight:900; letter-spacing:0.2em;
+  color:#0D0D0D; background:#FFE600;
+  padding:5px 14px; margin-bottom:22px;
+  text-transform:uppercase; display:inline-block;
+}
+.accent-line { width:40px; height:3px; background:#FFE600; margin:0 auto 22px; }
+.mtxt {
+  font-size:{{FONT_SIZE}}px; font-weight:900; color:#fff;
+  line-height:1.15; letter-spacing:-0.03em;
+  word-break:keep-all; margin-bottom:20px;
+}
+.mtxt .r  { color:#FF3B3B; }
+.mtxt em  { font-style:normal; color:#FFE600; }
+.stxt {
+  font-size:14px; color:rgba(255,255,255,0.4);
+  line-height:1.85; word-break:keep-all;
+}
+.stxt strong { color:rgba(255,255,255,0.75); font-weight:700; }
+.qbox {
+  border-left:3px solid #FFE600; padding:14px 18px; text-align:left;
+  background:rgba(255,230,0,0.05); border-radius:0 10px 10px 0;
+  margin-top:8px; width:100%;
+}
+.qbox p { font-size:15px; color:#ccc; line-height:1.8; word-break:keep-all; }
+.qbox .src { font-size:11px; color:#555; margin-top:6px; display:block; }
+.num-cards { display:flex; gap:10px; width:100%; margin-top:16px; }
+.nc {
+  flex:1; background:rgba(255,230,0,0.07);
+  border:1px solid rgba(255,230,0,0.18);
+  border-radius:10px; padding:14px 8px;
+}
+.nc-num { font-size:26px; font-weight:900; color:#FFE600; letter-spacing:-0.03em; }
+.nc-lbl { font-size:10px; color:rgba(255,255,255,0.3); margin-top:4px; letter-spacing:0.05em; }
+.urgent {
+  background:rgba(255,59,59,0.12);
+  border:1px solid rgba(255,59,59,0.3);
+  border-radius:8px; padding:12px 16px;
+  width:100%; margin-bottom:16px;
+  font-size:13px; color:#FF6B6B;
+  font-weight:700; letter-spacing:0.04em;
+}
+.cta-btn {
+  margin-top:20px; background:#FFE600; color:#0D0D0D;
+  font-size:16px; font-weight:900; border-radius:4px;
+  padding:15px 36px; letter-spacing:0.04em; width:100%;
+}
+.cta-sub {
+  margin-top:10px; font-size:12px; color:rgba(255,255,255,0.25); letter-spacing:0.04em;
+}
+.bottom {
+  position:absolute; bottom:0; left:0; right:0;
+  padding:14px 28px 20px;
+  display:flex; justify-content:space-between; align-items:center;
+  background:linear-gradient(to top, rgba(0,0,0,0.9), transparent); z-index:10;
+}
+.handle { font-size:11px; color:rgba(255,255,255,0.2); font-weight:700; letter-spacing:0.08em; }
+.num-badge { font-size:11px; color:#FFE600; font-weight:900;
+  border:1px solid rgba(255,230,0,0.3); padding:3px 8px; letter-spacing:0.1em; }
+.seg-bar { position:absolute; top:14px; left:16px; right:16px; display:flex; gap:4px; z-index:10; }
+.seg { flex:1; height:2px; background:rgba(255,255,255,0.08); border-radius:1px; overflow:hidden; }
+.seg-fill { height:100%; background:#FFE600; width:0%; border-radius:1px; }
+.seg.done .seg-fill { width:100%; transition:none; }
+.seg.active .seg-fill { width:100%; transition: width linear; }
+.bg-num {
+  position:absolute; font-size:200px; font-weight:900;
+  color:rgba(255,230,0,0.025); bottom:-20px; right:-10px;
+  line-height:1; pointer-events:none; user-select:none;
+}
+</style>
+
+<div class="phone">
+  <div class="seg-bar" id="segBar"></div>
+  {{SLIDES}}
+  <div class="bottom">
+    <div class="handle">@blk_writer · 블랙스톤</div>
+    <div class="num-badge" id="numBadge">1/{{TOTAL}}</div>
+  </div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const segBar = document.getElementById('segBar');
+  const numBadge = document.getElementById('numBadge');
+  const total = slides.length;
+  const duration = 4000;
+  let current = 0, timer = null;
+  const segs = [];
+  for (let i = 0; i < total; i++) {
+    const seg = document.createElement('div'); seg.className = 'seg';
+    const fill = document.createElement('div'); fill.className = 'seg-fill';
+    seg.appendChild(fill); segBar.appendChild(seg); segs.push(seg);
+  }
+  function showSlide(idx, prev) {
+    if (prev >= 0) { slides[prev].classList.remove('active'); slides[prev].classList.add('gone'); }
+    slides[idx].classList.remove('gone');
+    requestAnimationFrame(() => requestAnimationFrame(() => slides[idx].classList.add('active')));
+    numBadge.textContent = `${idx+1}/${total}`;
+    segs.forEach((seg, i) => {
+      seg.classList.remove('active','done');
+      const fill = seg.querySelector('.seg-fill');
+      fill.style.transition = 'none'; fill.style.width = i < idx ? '100%' : '0%';
+      if (i < idx) seg.classList.add('done');
+    });
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      segs[idx].classList.add('active');
+      segs[idx].querySelector('.seg-fill').style.transition = `width ${duration}ms linear`;
+      segs[idx].querySelector('.seg-fill').style.width = '100%';
+    }));
+  }
+  function start() {
+    clearInterval(timer); current = 0;
+    slides.forEach(s => s.classList.remove('active','gone'));
+    showSlide(0, -1);
+    timer = setInterval(() => {
+      const prev = current; current++;
+      if (current >= total) { clearInterval(timer); setTimeout(start, 1500); return; }
+      showSlide(current, prev);
+    }, duration);
+  }
+  start();
+</script>

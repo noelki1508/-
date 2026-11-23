@@ -1,0 +1,6 @@
+automation/.env
+automation/ig_session.json
+automation/output/
+automation/__pycache__/
+*.pyc
+*.log
