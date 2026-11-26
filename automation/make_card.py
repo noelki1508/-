@@ -3,12 +3,15 @@
 블랙 명조 카드 생성기 (Threads 첨부 이미지용)
 
 사용법:
-  python3.13 make_card.py "헤드라인" "본문 1줄|본문 2줄||새 문단 1줄" out.png
+  python3.13 make_card.py "헤드라인" "본문 1줄|본문 2줄||새 문단 1줄" out.png ["출처"]
   - '|'  = 줄바꿈
   - '||' = 문단 띄우기
+  - '*강조*' = 본문 안 골드 하이라이트
+  - 출처(선택) = 카드 하단 작은 회색 글씨
 """
 import asyncio
 import html
+import re
 import sys
 from pathlib import Path
 
@@ -37,28 +40,36 @@ body {{ background:#000; }}
   line-height:2.25; letter-spacing:0.01em; word-break:keep-all;
 }}
 .gap {{ height:36px; }}
+.hl {{ color:#E9C04A; }}
+.source {{ font-size:28px; color:#8A8A8A; margin-top:72px; letter-spacing:0.02em; }}
 </style>
 <div class="card">
   <div class="headline">{headline}</div>
   <div class="body">{body}</div>
+  {source}
 </div>
 """
+
+
+def _line_html(line: str) -> str:
+    return re.sub(r"\*(.+?)\*", r'<span class="hl">\1</span>', html.escape(line))
 
 
 def _body_html(body: str) -> str:
     paras = [p.split("|") for p in body.split("||")]
     return '<div class="gap"></div>'.join(
-        "<br>".join(html.escape(line) for line in lines) for lines in paras
+        "<br>".join(_line_html(line) for line in lines) for lines in paras
     )
 
 
-async def _render(headline: str, body: str, out: str):
+async def _render(headline: str, body: str, out: str, source: str = ""):
     from playwright.async_api import async_playwright
 
     page_html = TEMPLATE.format(
         font_dir=FONT_DIR.resolve(),
         headline="<br>".join(html.escape(l) for l in headline.split("|")),
         body=_body_html(body),
+        source=f'<div class="source">{html.escape(source)}</div>' if source else "",
     )
     tmp = Path(out).with_suffix(".html")
     tmp.write_text(page_html, encoding="utf-8")
@@ -74,13 +85,13 @@ async def _render(headline: str, body: str, out: str):
     tmp.unlink()
 
 
-def make_card(headline: str, body: str, out: str) -> str:
-    asyncio.run(_render(headline, body, out))
+def make_card(headline: str, body: str, out: str, source: str = "") -> str:
+    asyncio.run(_render(headline, body, out, source))
     return out
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
+    if len(sys.argv) not in (4, 5):
         print(__doc__)
         sys.exit(1)
-    print(make_card(sys.argv[1], sys.argv[2], sys.argv[3]))
+    print(make_card(*sys.argv[1:]))
